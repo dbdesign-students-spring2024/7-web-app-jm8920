@@ -14,8 +14,8 @@ A create page for users to create new tasks.
 - **Topping Feature**: Manually top tasks for easy prioritization.
 
 ## Live Deployment
-Local link: http://127.0.0.1:5000/
-i6 link: https://i6.cims.nyu.edu/~jm8920/7-web-app-jm8920/flask.cgi
+- **Local link**: http://127.0.0.1:5000/
+- **i6 link**: https://i6.cims.nyu.edu/~jm8920/7-web-app-jm8920/flask.cgi
 There is a "server error" when I try to publish the apps on i6.
 
 ## My information
