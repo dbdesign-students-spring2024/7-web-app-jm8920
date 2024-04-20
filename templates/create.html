@@ -1,24 +1,24 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Create a Task</h2>
+<h2>Create a New Task</h2>
 <p>Fill out the form below to add a new task to your to-do list.</p>
-<form method="POST" action="{{ url_for('create') }}">
+
+<form method="POST" action="{{ url_for('create') }}">  
   <p>
     Task Name:
     <input type="text" id="task_name" name="task_name" required /><br />
   </p>
   <p>
-    Priority (1-10):
-    <input type="number" id="priority" name="priority" min="1" max="10" required /><br />
+    Priority (1-5):
+    <input type="number" id="priority" name="priority" min="1" max="5" required /><br />
   </p>
   <p>
     Description:
     <textarea id="description" name="description" required></textarea>
   </p>
   <p>
-    <a href="{{ url_for('read')}}">Cancel</a>
+    <a href="{{ url_for('read') }}">Cancel</a>
     <input type="submit" value="Create Task" />
   </p>
-</form>
 {% endblock %}

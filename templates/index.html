@@ -1,24 +1,26 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Welcome to the To-Do List App!</h2>
-<p>Welcome to your personal task manager. Here's a quick overview of your tasks:</p>
-<p>You have <strong>{{ total_tasks }}</strong> tasks in total.</p>
+<h2>Welcome to Your To-Do List</h2>
+<p>Total tasks: {{ total_tasks }}</p>
 
-{% if important_tasks.count() > 0 %}
+{% if important_tasks and important_tasks|length > 0 %}
     <h3>Important Tasks</h3>
     <ul>
         {% for task in important_tasks %}
-            <li>{{ task.name }} (Priority: {{ task.priority }}) - Created on {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</li>
+            <li>
+                {{ task.name }} (Priority: {{ task.priority }}) - 
+                Created on {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+            </li>
         {% endfor %}
     </ul>
 {% else %}
-    <p>No important tasks to display. You're all caught up!</p>
+    <p>No important tasks to display.</p>
 {% endif %}
 
 <h3>Navigation</h3>
 <ul>
-    <li><a href="{{ url_for('read')}}">View All Tasks</a></li>
-    <li><a href="{{ url_for('create')}}">Create a New Task</a></li>
+    <li><a href="{{ url_for('read') }}">All Tasks</a></li>
+    <li><a href="{{ url_for('create') }}">Create a New Task</a></li>
 </ul>
 {% endblock %}

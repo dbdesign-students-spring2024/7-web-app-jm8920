@@ -20,17 +20,13 @@
         </header>
         <main>
             {% block container %}
-            <!-- Content specific to each page will be injected here -->
+            <!-- Content specific to each page -->
             {% endblock %}
         </main>
         <footer>
-            <p>
-                The source code for this to-do list app is
-                <a href="https://github.com/nyu-database-design/flask-mongodb-web-app">available on Github</a>.
-            </p>
+            <p>dbdesign-webapp-Jingyan Ma</p>
         </footer>
     </div>
-    <!-- Optional JavaScript for enhanced interactivity - adjust path as needed -->
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

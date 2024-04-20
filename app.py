@@ -61,87 +61,96 @@ except ConnectionFailure as e:
 
 
 # set up the routes
-
-
+# Home route
 @app.route("/")
 def home():
-    """
-    Route for the home page.
-    Simply returns to the browser the content of the index.html file located in the templates folder.
-    """
     total_tasks = db.todos.count_documents({})
-    important_tasks = db.todos.find({"priority": {"$gte": 8}}).sort("created_at", -1)
-    return render_template("index.html", total_tasks=total_tasks, important_tasks=important_tasks)
+    important_tasks = list(
+        db.todos.find({"priority": {"$gte": 5}, "topped": False}).sort("created_at", -1)
+    )
+    manually_topped_tasks = list(
+        db.todos.find({"topped": True}).sort("created_at", -1)  # Topped tasks at the top
+    )
 
+    return render_template(
+        "index.html",
+        total_tasks=total_tasks,
+        important_tasks=manually_topped_tasks + important_tasks,
+    )
 
-@app.route("/tasks")
+# Read route to display all tasks
+@app.route("/read")
 def read():
-    """
-    Route for GET requests to the read page.
-    Displays some information for the user with links to other pages.
-    """
-    task_count = db.todos.count_documents({}) 
-    tasks = db.todos.find({}).sort("created_at", -1)
+    task_count = db.todos.count_documents({})
+    tasks = db.todos.find({}).sort([("topped", -1), ("created_at", -1)]) 
     return render_template("read.html", tasks=tasks, task_count=task_count)
 
-
-@app.route("/create")
+@app.route("/create", methods=["GET", "POST"])
 def create():
-    """
-    Route for GET requests to the create page.
-    Displays a form users can fill out to create a new document.
-    """
     if request.method == "POST":
-        task_name = request.form["task_name"]
-        priority = int(request.form["priority"])
-        description = request.form["description"]
-        task = {
+        task_name = request.form.get("task_name")
+        priority = int(request.form.get("priority", 0))
+        description = request.form.get("description")
+
+        # Basic validation
+        if not task_name or not description:
+            return render_template("create.html", error="Please fill out all required fields.")
+
+        new_task = {
             "name": task_name,
             "priority": priority,
             "description": description,
-            "created_at": datetime.datetime.utcnow()
+            "created_at": datetime.datetime.utcnow(),
+            "topped": False,
         }
-        db.todos.insert_one(task)
-        return redirect(url_for("read"))
-    return render_template("create.html")  # render the create template
 
+        db.todos.insert_one(new_task)
 
-@app.route("/edit/<mongoid>")
+        return redirect(url_for("read"))  
+    return render_template("create.html")
+
+# Route to toggle task status
+@app.route("/top/<mongoid>")
+def top_task(mongoid):
+    task = db.todos.find_one({"_id": ObjectId(mongoid)})
+
+    if not task:
+        return render_template("error.html", error="Task not found.")
+
+    new_topped_status = not task.get("topped", False)
+
+    db.todos.update_one(
+        {"_id": ObjectId(mongoid)}, {"$set": {"topped": new_topped_status}},
+    )
+
+    return redirect(url_for("read"))  
+
+# Route for editing a task
+@app.route("/edit/<mongoid>", methods=["GET", "POST"])
 def edit(mongoid):
-    """
-    Route for editing a task.
-    """
     if request.method == "POST":
         updated_values = {
             "name": request.form["task_name"],
             "priority": int(request.form["priority"]),
             "description": request.form["description"],
-            "created_at": datetime.datetime.utcnow()
+            "created_at": datetime.datetime.utcnow(),
         }
         db.todos.update_one({"_id": ObjectId(mongoid)}, {"$set": updated_values})
         return redirect(url_for("read"))
-    task = db.todos.find_one({"_id": ObjectId(mongoid)})
+
+    task = db.todos.find_one({"_id": ObjectId(mongoid)}) 
     return render_template("edit.html", task=task)
 
+# Route for deleting a task
 @app.route("/delete/<mongoid>")
 def delete(mongoid):
-    """
-    Route for GET requests to the delete page.
-    Deletes the specified record from the database, and then redirects the browser to the read page.
-
-    Parameters:
-    mongoid (str): The MongoDB ObjectId of the record to be deleted.
-    """
-    db.todos.delete_one({"_id": ObjectId(mongoid)})
+    db.todos.delete_one({"_id": ObjectId(mongoid)}) 
     return redirect(url_for("read"))
 
+# Error handling
 @app.errorhandler(Exception)
 def handle_error(e):
-    """
-    Output any errors - good for debugging.
-    """
-    return render_template("error.html", error=e)  # render the edit template
-
+    return render_template("error.html", error=e)
 
 # run the app
 if __name__ == "__main__":

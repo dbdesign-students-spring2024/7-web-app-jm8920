@@ -3,17 +3,25 @@
 {% block container %}
 <h2>All Tasks</h2>
 <p>Total tasks: {{ task_count }}</p>
+
 {% if tasks %}
     {% for task in tasks %}
     <div class="task-entry">
         <hr class="solid">
         <p class="task-info">
-            Task: <strong>{{ task.name }}</strong> (Priority: {{ task.priority }}) 
+            Task: <strong>{{ task.name }}</strong> (Priority: {{ task.priority }})
             <br/>
             Created on: {{ task.created_at.strftime("%H:%M on %d %B %Y") }}
             <br/>
-            <a href="{{ url_for('edit', task_id=task._id)}}">Edit</a> | 
-            <a href="{{ url_for('delete', task_id=task._id)}}">Delete</a>
+            <a href="{{ url_for('top_task', mongoid=task._id) }}"> 
+                {% if task.get("topped", False) %}
+                    Untop
+                {% else %}
+                    Top
+                {% endif %}
+            </a> |
+            <a href="{{ url_for('edit', mongoid=task._id)}}">Edit</a> |
+            <a href="{{ url_for('delete', mongoid=task._id) }}">Delete</a>
         </p>
         <p class="task-description">
             Description: {{ task.description }}
@@ -21,6 +29,6 @@
     </div>
     {% endfor %}
 {% else %}
-    <p>No tasks available. <a href="{{ url_for('create')}}">Create a new task?</a></p>
+    <p>No tasks available. <a href="{{ url_for('create') }}">Create a new task?</a></p>
 {% endif %}
 {% endblock %}

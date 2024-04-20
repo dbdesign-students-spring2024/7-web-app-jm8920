@@ -2,38 +2,46 @@
 body {
   background-color: #f4f9f4; 
   color: #333; 
+  font-family: 'Arial', sans-serif; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh; 
+  margin: 0;
+  padding: 0;
 }
 
+/* Main container */
 .container {
   border: 2px solid #ffd1dc; 
-  width: 50%;
-  margin: 0 auto;
   background-color: #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
-}
-
-header, footer, main {
-  padding: 20px;
-}
-
-header, main {
-  border-bottom: 2px solid #ffd1dc; 
-  margin-bottom: 5px;
+  padding: 20px; 
+  width: 70%; 
+  max-width: 1000px; 
+  display: flex;
+  flex-direction: column;
+  align-items: center; 
+  justify-content: center;
 }
 
 header {
   background-color: #d5e8d4; 
   color: #5c857b; 
+  padding: 20px; 
+  width: 100%; 
+  border-bottom: 2px solid #ffd1dc; 
+  text-align: center; 
 }
 
-/* Navigation styles */
 nav ul {
   list-style-type: none;
   padding: 0;
+  margin: 0;
 }
 
 nav ul li {
-  display: inline;
+  display: inline-block; 
   margin-right: 10px;
 }
 
@@ -50,6 +58,9 @@ nav ul li a:hover {
 /* Main content area */
 main {
   background-color: #fafafa; 
+  padding: 20px; 
+  width: 100%; 
+  border: 1px solid #ffd1dc; 
 }
 
 p.post {
@@ -61,11 +72,13 @@ footer {
   background-color: #ffd1dc; 
   color: #5c857b; 
   text-align: center;
-  font-size: 14px;
+  padding: 10px; 
+  border-top: 2px solid #ffd1dc; 
+  font-size: 12px; 
 }
 
 footer a {
-  color: #333;
+  color: #333; 
   text-decoration: none;
 }
 
@@ -73,31 +86,52 @@ footer a:hover {
   text-decoration: underline;
 }
 
-input[type="text"],
-input[type="number"],
+/* Input and Button Styles */
+input[type="text"], 
+input[type="number"], 
 textarea {
   width: 100%; 
   padding: 10px; 
-  margin-top: 5px;
   border: 1px solid #ccc; 
   box-sizing: border-box; 
+  margin-top: 5px;
+  border-radius: 5px; 
 }
 
 input[type="submit"] {
   background-color: #ff79c6; 
-  border: none;
-  padding: 10px 20px;
-  cursor: pointer;
-  margin-top: 10px;
+  border: 1px solid #f562a4; 
+  padding: 10px 20px; 
+  cursor: pointer; 
+  margin-top: 10px; 
+  border-radius: 5px; 
+  text-align: center;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
 }
 
 input[type="submit"]:hover {
   background-color: #f562a4; 
+  border: 1px solid #e45098; 
 }
 
 a {
-  color: #ff79c6;
+  color: #ff79c6; 
+  text-decoration: none;
 }
+
 a:hover {
-  color: #f562a4;
+  color: #f562a4; 
+  text-decoration: underline; 
+}
+
+.task-entry {
+  border: 1px solid #ffd1dc; 
+  padding: 15px; 
+  margin: 10px 0; 
+  background-color: #ffffff; 
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1); 
+}
+
+.task-info {
+  text-align: left; 
 }

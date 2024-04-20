@@ -4,14 +4,14 @@
 <h2>Edit Task</h2>
 <p>Update the details of your task.</p>
 
-<form method="POST" action="{{ url_for('edit', task_id=task._id) }}">
+<form method="POST" action="{{ url_for('edit', mongoid=task._id) }}">
   <p>
     Task Name:
     <input type="text" id="task_name" name="task_name" value="{{ task.name }}" required /><br />
   </p>
   <p>
     Priority:
-    <input type="number" id="priority" name="priority" value="{{ task.priority }}" min="1" max="10" required /><br />
+    <input type="number" id="priority" name="priority" value="{{ task.priority }}" min="1" max="5" required /><br />
   </p>
   <p>
     Description:
