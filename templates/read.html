@@ -1,23 +1,26 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Read</h2>
-<p>This page shows information pulled from a MongoDB database collection.
-        
-    {% for doc in docs %}
-    <div>
+<h2>All Tasks</h2>
+<p>Total tasks: {{ task_count }}</p>
+{% if tasks %}
+    {% for task in tasks %}
+    <div class="task-entry">
         <hr class="solid">
-        <p class="post">
-            Posted by {{doc.name}} at {{ doc.created_at.strftime("%H:%M on %d %B %Y") }}
+        <p class="task-info">
+            Task: <strong>{{ task.name }}</strong> (Priority: {{ task.priority }}) 
             <br/>
-            <a href="{{ url_for('edit',mongoid=doc._id)}}">Edit</a> | <a href="{{ url_for('delete',mongoid=doc._id)}}">Delete</a>
+            Created on: {{ task.created_at.strftime("%H:%M on %d %B %Y") }}
             <br/>
+            <a href="{{ url_for('edit', task_id=task._id)}}">Edit</a> | 
+            <a href="{{ url_for('delete', task_id=task._id)}}">Delete</a>
         </p>
-        <p>
-            {{ doc.message }}
+        <p class="task-description">
+            Description: {{ task.description }}
         </p>
-            
     </div>
-    {%endfor%}
-</p>
+    {% endfor %}
+{% else %}
+    <p>No tasks available. <a href="{{ url_for('create')}}">Create a new task?</a></p>
+{% endif %}
 {% endblock %}

@@ -1,11 +1,24 @@
 {% extends 'base.html' %}
 
 {% block container %}
-<h2>Welcome!</h2>
-<p>Welcome to the Flask app. This is the home page. Here are a few links to example pages you might find interesting.
+<h2>Welcome to the To-Do List App!</h2>
+<p>Welcome to your personal task manager. Here's a quick overview of your tasks:</p>
+<p>You have <strong>{{ total_tasks }}</strong> tasks in total.</p>
+
+{% if important_tasks.count() > 0 %}
+    <h3>Important Tasks</h3>
     <ul>
-        <li><a href="{{ url_for('read')}}">a page that displays information pulled from a MongoDB database collection</a></li>
-        <li><a href="{{ url_for('create')}}">a page with a form you can submit to create a new record in a MongoDB collection</a></li>
+        {% for task in important_tasks %}
+            <li>{{ task.name }} (Priority: {{ task.priority }}) - Created on {{ task.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</li>
+        {% endfor %}
     </ul>
-</p>
+{% else %}
+    <p>No important tasks to display. You're all caught up!</p>
+{% endif %}
+
+<h3>Navigation</h3>
+<ul>
+    <li><a href="{{ url_for('read')}}">View All Tasks</a></li>
+    <li><a href="{{ url_for('create')}}">Create a New Task</a></li>
+</ul>
 {% endblock %}

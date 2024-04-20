@@ -30,7 +30,6 @@ sentry_sdk.init(
     dsn=os.getenv("SENTRY_DSN"),
     # enable_tracing=True,
     # Set traces_sample_rate to 1.0 to capture 100% of transactions for performance monitoring.
-    traces_sample_rate=1.0,
     # Set profiles_sample_rate to 1.0 to profile 100% of sampled transactions.
     # We recommend adjusting this value in production.
     profiles_sample_rate=1.0,
@@ -70,19 +69,20 @@ def home():
     Route for the home page.
     Simply returns to the browser the content of the index.html file located in the templates folder.
     """
-    return render_template("index.html")
+    total_tasks = db.todos.count_documents({})
+    important_tasks = db.todos.find({"priority": {"$gte": 8}}).sort("created_at", -1)
+    return render_template("index.html", total_tasks=total_tasks, important_tasks=important_tasks)
 
 
-@app.route("/read")
+@app.route("/tasks")
 def read():
     """
     Route for GET requests to the read page.
     Displays some information for the user with links to other pages.
     """
-    docs = db.exampleapp.find({}).sort(
-        "created_at", -1
-    )  # sort in descending order of created_at timestamp
-    return render_template("read.html", docs=docs)  # render the read template
+    task_count = db.todos.count_documents({}) 
+    tasks = db.todos.find({}).sort("created_at", -1)
+    return render_template("read.html", tasks=tasks, task_count=task_count)
 
 
 @app.route("/create")
@@ -91,69 +91,37 @@ def create():
     Route for GET requests to the create page.
     Displays a form users can fill out to create a new document.
     """
+    if request.method == "POST":
+        task_name = request.form["task_name"]
+        priority = int(request.form["priority"])
+        description = request.form["description"]
+        task = {
+            "name": task_name,
+            "priority": priority,
+            "description": description,
+            "created_at": datetime.datetime.utcnow()
+        }
+        db.todos.insert_one(task)
+        return redirect(url_for("read"))
     return render_template("create.html")  # render the create template
-
-
-@app.route("/create", methods=["POST"])
-def create_post():
-    """
-    Route for POST requests to the create page.
-    Accepts the form submission data for a new document and saves the document to the database.
-    """
-    name = request.form["fname"]
-    message = request.form["fmessage"]
-
-    # create a new document with the data the user entered
-    doc = {"name": name, "message": message, "created_at": datetime.datetime.utcnow()}
-    db.exampleapp.insert_one(doc)  # insert a new document
-
-    return redirect(
-        url_for("read")
-    )  # tell the browser to make a request for the /read route
 
 
 @app.route("/edit/<mongoid>")
 def edit(mongoid):
     """
-    Route for GET requests to the edit page.
-    Displays a form users can fill out to edit an existing record.
-
-    Parameters:
-    mongoid (str): The MongoDB ObjectId of the record to be edited.
+    Route for editing a task.
     """
-    doc = db.exampleapp.find_one({"_id": ObjectId(mongoid)})
-    return render_template(
-        "edit.html", mongoid=mongoid, doc=doc
-    )  # render the edit template
-
-
-@app.route("/edit/<mongoid>", methods=["POST"])
-def edit_post(mongoid):
-    """
-    Route for POST requests to the edit page.
-    Accepts the form submission data for the specified document and updates the document in the database.
-
-    Parameters:
-    mongoid (str): The MongoDB ObjectId of the record to be edited.
-    """
-    name = request.form["fname"]
-    message = request.form["fmessage"]
-
-    doc = {
-        # "_id": ObjectId(mongoid),
-        "name": name,
-        "message": message,
-        "created_at": datetime.datetime.utcnow(),
-    }
-
-    db.exampleapp.update_one(
-        {"_id": ObjectId(mongoid)}, {"$set": doc}  # match criteria
-    )
-
-    return redirect(
-        url_for("read")
-    )  # tell the browser to make a request for the /read route
-
+    if request.method == "POST":
+        updated_values = {
+            "name": request.form["task_name"],
+            "priority": int(request.form["priority"]),
+            "description": request.form["description"],
+            "created_at": datetime.datetime.utcnow()
+        }
+        db.todos.update_one({"_id": ObjectId(mongoid)}, {"$set": updated_values})
+        return redirect(url_for("read"))
+    task = db.todos.find_one({"_id": ObjectId(mongoid)})
+    return render_template("edit.html", task=task)
 
 @app.route("/delete/<mongoid>")
 def delete(mongoid):
@@ -164,31 +132,8 @@ def delete(mongoid):
     Parameters:
     mongoid (str): The MongoDB ObjectId of the record to be deleted.
     """
-    db.exampleapp.delete_one({"_id": ObjectId(mongoid)})
-    return redirect(
-        url_for("read")
-    )  # tell the web browser to make a request for the /read route.
-
-
-@app.route("/webhook", methods=["POST"])
-def webhook():
-    """
-    GitHub can be configured such that each time a push is made to a repository, GitHub will make a request to a particular web URL... this is called a webhook.
-    This function is set up such that if the /webhook route is requested, Python will execute a git pull command from the command line to update this app's codebase.
-    You will need to configure your own repository to have a webhook that requests this route in GitHub's settings.
-    Note that this webhook does do any verification that the request is coming from GitHub... this should be added in a production environment.
-    """
-    # run a git pull command
-    process = subprocess.Popen(["git", "pull"], stdout=subprocess.PIPE)
-    pull_output = process.communicate()[0]
-    # pull_output = str(pull_output).strip() # remove whitespace
-    process = subprocess.Popen(["chmod", "a+x", "flask.cgi"], stdout=subprocess.PIPE)
-    chmod_output = process.communicate()[0]
-    # send a success response
-    response = make_response(f"output: {pull_output}", 200)
-    response.mimetype = "text/plain"
-    return response
-
+    db.todos.delete_one({"_id": ObjectId(mongoid)})
+    return redirect(url_for("read"))
 
 @app.errorhandler(Exception)
 def handle_error(e):

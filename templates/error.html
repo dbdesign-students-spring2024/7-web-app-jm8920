@@ -1,7 +1,12 @@
-{% extends 'base.html' %} {% block container %}
-<h2>Uh oh!</h2>
+{% extends 'base.html' %}
+
+{% block container %}
+<h2>Error Encountered!</h2>
 <p>
-  Unfortunately, it seems that we have encountered an error... and here it is:
+  We encountered an issue while processing your request. Please try again or contact support if the problem persists.
 </p>
-<code> {{error}} </code>
+<p>If you’re the site administrator, see the error details below:</p>
+<div class="error-details">
+    <pre>{{ error | e }}</pre>
+</div>
 {% endblock %}
